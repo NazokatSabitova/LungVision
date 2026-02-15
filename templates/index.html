@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+  <head>
+    <title>LungVision AI</title>
+
+    <link rel="stylesheet" href="D:\AI_MEDICAL\LungVision2\static\style.css" />
+
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>LungVision AI</h1>
+      <p style="text-align: center; color: #5c6f82">
+        AI-powered Chest X-ray Multi-Label Classification System
+      </p>
+
+      <form method="POST" enctype="multipart/form-data">
+    <input type="file" name="image" required><br><br>
+
+    <label>Select Model:</label>
+    <select name="model">
+        {% for model in models %}
+        <option value="{{ model }}">{{ model }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <button type="submit">Predict</button>
+</form>
+
+{% if image_path %}
+    <h3>Uploaded Image:</h3>
+    <img src="{{ image_path }}" width="300">
+{% endif %}
+
+{% if results %}
+    <h3>Top Predictions:</h3>
+    <ul>
+        {% for r in results %}
+            <li>{{ r.class }} : {{ "%.3f"|format(r.probability) }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+    </div>
+  </body>
+</html>
