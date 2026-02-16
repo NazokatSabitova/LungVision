@@ -2,44 +2,288 @@
 <html>
   <head>
     <title>LungVision AI</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
 
-    <link rel="stylesheet" href="D:\AI_MEDICAL\LungVision2\static\style.css" />
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
 
-    />
+      /* Welcome Screen */
+      .welcome-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        transition: transform 0.8s ease-in-out;
+      }
+
+      .welcome-screen.slide-up {
+        transform: translateY(-100%);
+      }
+
+      .welcome-screen.hidden {
+        display: none;
+      }
+
+      .welcome-content {
+        text-align: center;
+        color: white;
+      }
+
+      .welcome-content h1 {
+        font-size: 5rem;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      }
+
+      .start-btn {
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        background: white;
+        color: #667eea;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      .start-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      }
+
+      /* Main Content */
+      .main-content {
+        padding: 2rem;
+        opacity: 0;
+        transition: opacity 0.8s ease-in-out;
+      }
+
+      .main-content.visible {
+        opacity: 1;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.5s ease;
+      }
+
+      /* Page swipe animation for results */
+      .container.show-results {
+        transform: translateY(-20px);
+        box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+      }
+
+      h1 {
+        text-align: center;
+        color: #667eea;
+        margin-bottom: 1rem;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: 2rem;
+      }
+
+      input[type="file"] {
+        width: 100%;
+        padding: 1rem;
+        border: 2px dashed #667eea;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+      }
+
+      select {
+        width: 100%;
+        padding: 0.8rem;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        margin: 1rem 0;
+      }
+
+      button[type="submit"] {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+      }
+
+      button[type="submit"]:hover {
+        transform: translateY(-2px);
+      }
+
+      .uploaded-image {
+        margin-top: 2rem;
+        text-align: center;
+      }
+
+      .uploaded-image img {
+        max-width: 100%;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      }
+
+      .results {
+        margin-top: 2rem;
+      }
+
+      /* Left to right animation for results */
+      @keyframes slideFromLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .results ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .results li {
+        padding: 0.8rem;
+        margin: 0.5rem 0;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+        opacity: 0;
+        animation: slideFromLeft 0.4s ease forwards;
+      }
+
+      /* Each result appears one after another from left */
+      .results li:nth-child(1) { animation-delay: 0.2s; }
+      .results li:nth-child(2) { animation-delay: 0.4s; }
+      .results li:nth-child(3) { animation-delay: 0.6s; }
+      .results li:nth-child(4) { animation-delay: 0.8s; }
+      .results li:nth-child(5) { animation-delay: 1.0s; }
+      .results li:nth-child(6) { animation-delay: 1.2s; }
+      .results li:nth-child(7) { animation-delay: 1.4s; }
+      .results li:nth-child(8) { animation-delay: 1.6s; }
+      .results li:nth-child(9) { animation-delay: 1.8s; }
+      .results li:nth-child(10) { animation-delay: 2.0s; }
+    </style>
   </head>
   <body>
-    <div class="container">
-      <h1>LungVision AI</h1>
-      <p style="text-align: center; color: #5c6f82">
-        AI-powered Chest X-ray Multi-Label Classification System
-      </p>
-
-      <form method="POST" enctype="multipart/form-data">
-    <input type="file" name="file" required><br><br>
-
-    <label>Select Model:</label>
-    <select name="model">
-        {% for model in models %}
-        <option value="{{ model }}">{{ model }}</option>
-        {% endfor %}
-    </select><br><br>
-
-    <button type="submit">Predict</button>
-</form>
-
-{% if image_path %}
-    <h3>Uploaded Image:</h3>
-    <img src="{{ image_path }}" width="300">
-{% endif %}
-
-{% if results %}
-    <h3>Top Predictions:</h3>
-    <ul>
-        {% for r in results %}
-            <li>{{ r.class }} : {{ "%.3f"|format(r.probability) }}</li>
-        {% endfor %}
-    </ul>
-{% endif %}
+    <!-- Welcome Screen -->
+    <div class="welcome-screen" id="welcomeScreen">
+      <div class="welcome-content">
+        <h1>LungVision</h1>
+        <button class="start-btn" onclick="startApp()">Get Started</button>
+      </div>
     </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+      <div class="container" id="mainContainer">
+        <h1>LungVision AI</h1>
+        <p class="subtitle">AI-powered Chest X-ray Multi-Label Classification System</p>
+
+        <form method="POST" enctype="multipart/form-data" id="analyzeForm">
+          <input type="file" name="file" required>
+          
+          <label>Select Model:</label>
+          <select name="model" id="modelSelect">
+            {% for model in models %}
+              <option value="{{ model }}">{{ model }}</option>
+            {% endfor %}
+          </select>
+
+          <button type="submit">Analyze X-Ray</button>
+        </form>
+
+        {% if image_path %}
+          <div class="uploaded-image">
+            <h3>Uploaded Image:</h3>
+            <img src="{{ image_path }}" width="300">
+          </div>
+        {% endif %}
+
+        {% if results %}
+          <div class="results">
+            <h3>Analysis Results:</h3>
+            <ul>
+              {% for r in results %}
+                <li>
+                  <strong>{{ r.class }}</strong>: 
+                  {{ "%.1f"|format(r.probability * 100) }}%
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <script>
+      // Check if app has been started before
+      if (localStorage.getItem('appStarted') === 'true') {
+        document.getElementById('welcomeScreen').classList.add('hidden');
+        document.getElementById('mainContent').classList.add('visible');
+      }
+
+      function startApp() {
+        document.getElementById('welcomeScreen').classList.add('slide-up');
+        document.getElementById('mainContent').classList.add('visible');
+        localStorage.setItem('appStarted', 'true');
+        
+        setTimeout(() => {
+          document.getElementById('welcomeScreen').classList.add('hidden');
+        }, 800);
+      }
+
+      // Restore selected model after page reload
+      document.addEventListener('DOMContentLoaded', function() {
+        const savedModel = localStorage.getItem('selectedModel');
+        if (savedModel) {
+          const select = document.getElementById('modelSelect');
+          if (select) {
+            select.value = savedModel;
+          }
+        }
+      });
+
+      // Save selected model when form is submitted
+      document.getElementById('analyzeForm').addEventListener('submit', function() {
+        const selectedModel = document.getElementById('modelSelect').value;
+        localStorage.setItem('selectedModel', selectedModel);
+      });
+
+      // Add swipe animation when results are present
+      {% if results %}
+        document.getElementById('mainContainer').classList.add('show-results');
+      {% endif %}
+    </script>
   </body>
 </html>
