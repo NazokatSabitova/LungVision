@@ -20,12 +20,18 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 MODELS = {
     "MobileNet": "models/mobilenet.pth",
     "ResNet": "models/resnet.pth",
-    "DenseNet":"models/densenet.pth",
-    "EfficientNet":"models/efficientnet.pth"
+    "DenseNet": "models/densenet.pth",
+    "EfficientNet": "models/efficientnet.pth"
 }
 
-def load_model(model_path):
-    model = build_model()
+def load_model(model_path, model_name):
+    # Convert dropdown name to model name (e.g., "MobileNet" -> "mobilenet")
+    model_type = model_name.lower()
+    
+    # Build model with specific type
+    model = build_model(model_type)
+    
+    # Load weights
     model.load_state_dict(torch.load(model_path, map_location=DEVICE))
     model.to(DEVICE)
     model.eval()
@@ -61,7 +67,7 @@ def index():
             image_path = f"uploads/{file.filename}"
 
             # Load selected model
-            model = load_model(MODELS[selected_model])
+            model = load_model(MODELS[selected_model], selected_model)
 
             image = Image.open(filepath).convert("RGB")
             image = transform(image).unsqueeze(0).to(DEVICE)
